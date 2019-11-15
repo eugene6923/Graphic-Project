@@ -1,0 +1,95 @@
+---
+title: "data analysis1 - variables, observations"
+output: html_document
+---
+
+## variables
+
+```{r}
+#조합
+Pollution %>% count(State, County) %>% print(n=0)
+
+Pollution %>% count(State_Code, County_Code) %>% print(n=0)
+
+Pollution %>% count(Site_Num) %>% print(n=0)
+
+Pollution %>% count(City, Address) %>% print(n=0)
+
+#개수 다름
+
+Pollution %>% count(Site_Num) %>% print(n=0)
+
+Pollution %>% count(Address) %>% print(n=0)
+
+#개수 다름
+
+Pollution %>% count(State, County, City, Address) %>% print(n=0)
+
+Pollution %>% count(State_Code, County_Code, Site_Num) %>% print(n=0)
+
+#개수 같음!!
+
+```
+
+
+Code의 경우 상위 지역 Code와 함께 사용해야한다는 사실을 알게되었다. 또한, (State, County, City, Address) 조합과 (State_Code, County_Code, Site_Num) 조합이 같은 정보를 나타내는 것을 알게되었다. 따라서 고유한 위치를 구별하기 위해서 (State, County, City, Address)조합, (State_Code, County_Code, Site_Num)조합, (State, County, Site_Num)조합 중 하나를 사용하기로 했다.
+
+
+## observations
+
+관측 자체에 관해 살펴보았다.
+먼저, 기본적으로 중복되지 않는 State의 수와 county 수를 확인했다.
+
+
+```{r}
+Pollution %>% count(n_distinct(State))
+
+Pollution %>% count(n_distinct(County))
+
+Pollution %>% count(n_distinct(City))
+
+Pollution %>% count(n_distinct(Address))
+```
+
+확인해본 결과 관측은 47개의 주이자, 133개의 군, 144개의 시에서 실시되었다. 미국의 주는 총 50개이므로 미국 전역에서 관측되었다고 볼 수 있다. 그러나, 어느 지역에서 특히 많은 관측이 이루어졌는지 살펴보았다.
+
+```{r}
+Pollution_NO2 %>% count(State) %>% arrange(desc(n)) %>% print(n = 3)
+
+Pollution_SO2 %>% count(State) %>% arrange(desc(n)) %>% print(n = 3)
+
+Pollution_O3 %>% count(State) %>% arrange(desc(n)) %>% print(n = 3)
+
+Pollution_CO %>% count(State) %>% arrange(desc(n)) %>% print(n = 3)
+```
+
+State별로 관측 수를 구하고 내림차순으로 정렬했을 때, California 주에서 압도적인 관측이 발생했다. NO2의 경우 2위에 비해 거의 4배 이상의 관측이 California 주에서 이루어졌다는 것을 알 수 있었다. 2위는 Pennsylvania주, 3위는 Texas주가 차지했다. 이 주에 어떤 군과 도시가 있는지 잠깐 확인해보자.
+
+```{r}
+Pollution %>% filter(State == "California") %>% group_by(State, County) %>% summarise(n_distinct(City))
+
+Pollution %>% filter(State == "Pennsylvania") %>% group_by(State, County) %>% summarise(n_distinct(City))
+
+
+Pollution %>% filter(State == "Texas") %>% group_by(State, County) %>% summarise(n_distinct(City))
+
+```
+
+California에 총 18개의 군에서 관측이 이루어졌으며, 군별 관측된 도시 숫자를 보아 California 내에서도 전역에서 관측이 이루어진 것을 알 수 파악할 수 있다. Pennsylvania의 경우 19개의 군에서, Texas의 경우 6개의 군에서 관측이 이루어졌다. 다시 돌아와서, 미국 전역에서 관측이 많이 이루어진 군을 확인해보았다.
+
+```{r}
+Pollution_NO2 %>% count(State, County) %>% arrange(desc(n)) %>% print(n = 5)
+
+Pollution_SO2 %>% count(State, County) %>% arrange(desc(n)) %>% print(n = 5)
+
+Pollution_O3 %>% count(State, County) %>% arrange(desc(n)) %>% print(n = 5)
+
+Pollution_CO %>% count(State, County) %>% arrange(desc(n)) %>% print(n = 5)
+```
+
+확인해본 결과 네 오염물질 모두 1위는 Californi주의 Los Angeles군이, 2위는 California주의 Contra Costa군, 3위는 California주의 Santa Barbara군이, 4위는 California주의 San Diego군이, 5위는 Arizona주의 Maricopa군이 차지했다.
+
+
+
+
+
