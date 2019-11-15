@@ -1,0 +1,138 @@
+---
+title: "data analysis3 - date"
+output: html_document
+---
+
+
+## 계절별 
+
+
+네 오염물질에 대해 각각 계절별로 분석해보기 위해 spring/summer/fall/winter로 나눈 새로운 데이터셋을 만들었다. (3-5월 = 봄 / 6-8월 = 여름 / 9-11월 = 가을 / 12-2월 = 겨울)
+
+```{r}
+NO2_spring<-Pollution_NO2 %>% filter(Month %in% c(3:5)) %>% distinct()
+NO2_summer<-Pollution_NO2 %>% filter(Month %in% c(6:8)) %>% distinct()
+NO2_fall<-Pollution_NO2 %>% filter(Month %in% c(9:11)) %>% distinct()
+NO2_winter<-Pollution_NO2 %>% filter(Month %in% c(1:2,12)) %>% distinct()
+
+SO2_spring<-Pollution_SO2 %>% filter(Month %in% c(3:5)) %>% distinct()
+SO2_summer<-Pollution_SO2 %>% filter(Month %in% c(6:8)) %>% distinct()
+SO2_fall<-Pollution_SO2 %>% filter(Month %in% c(9:11)) %>% distinct()
+SO2_winter<-Pollution_SO2 %>% filter(Month %in% c(1:2,12)) %>% distinct()
+
+
+O3_spring<-Pollution_O3 %>% filter(Month %in% c(3:5)) %>% distinct()
+O3_summer<-Pollution_O3 %>% filter(Month %in% c(6:8)) %>% distinct()
+O3_fall<-Pollution_O3 %>% filter(Month %in% c(9:11)) %>% distinct()
+O3_winter<-Pollution_O3 %>% filter(Month %in% c(1:2,12)) %>% distinct()
+
+CO_spring<-Pollution_CO %>% filter(Month %in% c(3:5)) %>% distinct()
+CO_summer<-Pollution_CO %>% filter(Month %in% c(6:8)) %>% distinct()
+CO_fall<-Pollution_CO %>% filter(Month %in% c(9:11)) %>% distinct()
+CO_winter<-Pollution_CO %>% filter(Month %in% c(1,2,12)) %>% distinct()
+
+```
+
+
+2000년부터 2010년까지의 각 날짜별로 관측한 횟수의 차이를 살펴보기 위해 count를 세서 내림차순으로 정렬해보니, 2002년 6월 10일이 640건으로 가장 많았고, 2001년 2월 12일이 136건으로 가장 적었다.
+최대값과 최소값의 차이가 약 500건으로 매우 크기 때문에 앞으로의 날짜별 자료분석에 있어서 mean 값을 취하여 살펴보는 것이 더 적절할 것이라고 판단했다.
+
+```{r}
+Pollution %>% group_by(Year,Month,Day) %>% summarise(count=n()) %>% arrange(desc(count))
+
+Pollution %>% group_by(Year,Month,Day) %>% summarise(count=n()) %>% arrange(count)
+```
+
+
+## 각 날짜별 최대/최소값 찾기 
+
+이번에는 각 날짜별 최대 & 최소값을 찾아보았다.
+
+```{r}
+Pollution_NO2 %>% filter(NO2_Mean > 0) %>% mutate(mean_max=max(NO2_Mean),mean_min=min(NO2_Mean)) %>% select(Date_Local,mean_max,mean_min,everything()) %>%distinct()
+
+Pollution_SO2 %>% filter(SO2_Mean > 0) %>% mutate(mean_max=max(SO2_Mean),mean_min=min(SO2_Mean)) %>% select(Date_Local,mean_max,mean_min,everything()) %>% distinct()
+
+Pollution_O3 %>% filter(O3_Mean > 0) %>% mutate(mean_max=max(O3_Mean),mean_min=min(O3_Mean)) %>% select(Date_Local,mean_max,mean_min,everything()) %>%distinct()
+
+Pollution_CO %>% filter(CO_Mean > 0) %>% mutate(mean_max=max(CO_Mean),mean_min=min(CO_Mean)) %>% select(Date_Local,mean_max,mean_min,everything()) %>%distinct()
+```
+
+즉, 다음과 같이 각 오염물질별 평균의 최댓값 변수를 만들어 정리하였다. 
+이를 각 오염물질별로 간단한 그림과 함께 확인해보자.
+
+
+## 그림으로 오염물질별 수치 판단
+
+
+### NO2
+
+
+```{r}
+#NO2
+Pollution_NO2 %>% group_by(Date_Local) %>% summarise(count=n()) %>% arrange(desc(count))
+
+Pollution_NO2 %>% group_by(Date_Local) %>% summarise(count=n()) %>% arrange(count)
+
+```
+
+NO2의 오염도가 가장 낮은 날짜는 2016-05, 가장 높은 날짜는 2002-06-10이다.
+
+```{r}
+Pollution_NO2 %>% group_by(Date_Local) %>% ggplot(aes(Date_Local,NO2_Mean))+geom_point()+geom_smooth(method="lm",color="red")
+
+Pollution_NO2 %>% filter(NO2_Mean>0.01) %>% arrange(desc(NO2_Mean)) %>% select(Date_Local,NO2_Mean,everything()) %>% distinct()
+```
+
+해가 지날수록 NO2는 감소하는 경향을 보임을 알 수 있다.
+
+
+
+### O3
+
+```{r}
+Pollution_O3 %>% group_by(Date_Local) %>% arrange(desc(O3_1st_Max_Value))
+
+Pollution_O3 %>% group_by(Date_Local) %>% arrange(desc(O3_Mean))
+```
+
+O3 평균 오염도를 내림차순, 오름차순으로 정렬해 보았다. 2000-06-10에 최대치를 기록했다.
+
+```{r}
+Pollution_O3 %>% group_by(Date_Local) %>% ggplot(aes(Date_Local,O3_Mean))+geom_point()+geom_smooth(method="lm",color="yellow")
+```
+
+O3는 다른 오염물질과 다르게 해가 지날수록 평균이 증가한다.
+
+
+### SO2
+
+
+```{r}
+#SO2의 평균을 크기가 큰 순과 작은 순으로 정렬해 보았다.
+Pollution_SO2 %>% group_by(Date_Local) %>% arrange(desc(SO2_1st_Max_Value))
+
+Pollution_SO2 %>% group_by(Date_Local) %>% arrange(desc(SO2_Mean))
+
+Pollution_SO2 %>% group_by(Date_Local) %>% ggplot(aes(Date_Local,SO2_Mean))+geom_point()+geom_smooth(method="lm",color="green")
+```
+
+
+### CO
+
+```{r}
+Pollution_CO %>% group_by(Date_Local) %>% arrange(desc(CO_1st_Max_Value))
+
+Pollution_CO %>% group_by(Date_Local) %>% arrange(desc(CO_Mean))
+
+```
+
+CO의 평균을 오름차순, 내림차순으로 정렬했다. 최대치는 2000-12 이다.
+
+```{r}
+Pollution_CO %>% group_by(Date_Local) %>% ggplot(aes(Date_Local,CO_Mean))+geom_point()+geom_smooth(method="lm",color="purple")
+
+Pollution_CO %>% filter(CO_Mean>6) %>% arrange(desc(CO_Mean)) %>% select(Date_Local,CO_Mean,everything()) %>% distinct()
+```
+
+시간이 지날수록 CO의 평균농도는 감소한다.
