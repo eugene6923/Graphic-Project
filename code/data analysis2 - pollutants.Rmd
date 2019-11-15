@@ -1,0 +1,245 @@
+---
+title: "data analysis2 - pollutants"
+output: html_document
+---
+
+[ AQI Class 확인 ]
+이제, 앞서 추가한 AQI_Class변수를 이용하여 오염물질의 심각성을 비교해보고자 한다. 오염물질 별로 단위가 다르기 때문에 통일된 공기 품질 지표인 AQI를 이용하여 확인했다. 네 오염물질별로 먼저 AQI_Class별로 막대 그래프를 그리고, AQI 범주가 “Good” 또는 “Moderate”가 아닌 범주에 대해서는 더 자세히 살펴보았다. 이들은 이상치로 칭했고, NO2부터 살펴보았다.
+
+
+## NO2
+
+```{r}
+#NO2
+Pollution_NO2 %>% group_by(NO2_AQI_Class) %>% summarise(n=n()) %>% ggplot(aes(NO2_AQI_Class, n)) + geom_bar(aes(fill = NO2_AQI_Class), stat = "identity") + theme_bw() + labs(title = "NO2 AQI BY Class") + theme(axis.text.x = element_text(angle = -5), legend.position = "bottom", plot.title = element_text(face = "bold", size = 12))
+
+```
+
+```{r}
+#이상치 관측 위치 확인
+Pollution_NO2 %>% filter(NO2_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(State, County) %>% summarise(AQI_mean = mean(NO2_AQI)) %>% arrange(desc(AQI_mean))
+
+#이상치 관측 날짜 확인
+Pollution_NO2 %>% filter(NO2_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(NO2_AQI)) %>% arrange(desc(AQI_mean))
+
+
+#이상치 관측 위치 + 날짜 확인
+Pollution_NO2 %>% filter(NO2_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(NO2_AQI)) %>% arrange(desc(AQI_mean))
+
+```
+
+NO2의 경우, 대부분 “Good” 범주에 속하며 일부만 매우 일부만 “Unhealthy for Sensitive Groups” 범주에서 관측되었다. “Unhealthy for Sensitive Groups”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 Michigan주의 Wayne군에서 가장 높은 AQI_mean을 보였다. 다시, “Unhealthy for Sensitive Groups”가 관측된 날짜와 그곳의 AQI_mean을 출력했다. 그 결과  2000년 1월 10일에 가장 높은 AQI_mean을 보였으며 전반적으로 2000년도에 높은 AQI_mean이 출력되었다.  이번엔  “Unhealthy for Sensitive Groups”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 날짜는 같지만 위치는 다르게 2000년 1월 10일 Arizonz 주의 Maricopa에서 가장 높은 AQI_mean이 출력되었다.
+
+## O3
+
+```{r}
+Pollution_O3 %>% filter(!is.na(O3_AQI) == TRUE) %>% group_by(O3_AQI_Class) %>% summarise(n=n()) %>% ggplot(aes(O3_AQI_Class, n)) + geom_bar(aes(fill = O3_AQI_Class), stat = "identity") + theme_bw() + labs(title = "O3 AQI BY Class") + theme(axis.text.x = element_text(angle = -6), legend.position = "bottom", plot.title = element_text(face = "bold", size = 12))
+```
+
+```{r}
+#이상치 관측 위치 확인
+#O3_AQI_Class = Unhealthy for Sensitive
+Pollution_O3 %>% filter(O3_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(State, County) %>% summarise(AQI_mean = mean(O3_AQI)) %>% arrange(desc(AQI_mean))
+
+#O3_AQI_Class = Unhealthy
+Pollution_O3 %>% filter(O3_AQI_Class == "Unhealthy") %>% group_by(State, County) %>% summarise(AQI_mean = mean(O3_AQI)) %>% arrange(desc(AQI_mean))
+
+#O3_AQI_Class = Very Unhealthy
+Pollution_O3 %>% filter(O3_AQI_Class == "Very Unhealthy") %>% group_by(State, County) %>% summarise(AQI_mean = mean(O3_AQI)) %>% arrange(desc(AQI_mean))
+
+#이상치 출력 날짜 확인
+#O3_AQI_Class = Unhealthy for Sensitive
+Pollution_O3 %>% filter(O3_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(O3_AQI)) %>% arrange(desc(AQI_mean))
+
+#O3_AQI_Class = Unhealthy
+Pollution_O3 %>% filter(O3_AQI_Class == "Unhealthy") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(O3_AQI)) %>% arrange(desc(AQI_mean))
+
+#O3_AQI_Class = Very Unhealthy
+Pollution_O3 %>% filter(O3_AQI_Class == "Very Unhealthy") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(O3_AQI)) %>% arrange(desc(AQI_mean))
+
+#이상치 관측 위치 + 날짜 확인
+#O3_AQI_Class = Unhealthy for Sensitive
+Pollution_O3 %>% filter(O3_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(O3_AQI)) %>% arrange(desc(AQI_mean))
+
+#O3_AQI_Class = Unhealthy
+Pollution_O3 %>% filter(O3_AQI_Class == "Unhealthy") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(O3_AQI)) %>% arrange(desc(AQI_mean))
+
+#O3_AQI_Class = Very Unhealthy
+Pollution_O3 %>% filter(O3_AQI_Class == "Very Unhealthy") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(O3_AQI)) %>% arrange(desc(AQI_mean))
+
+```
+
+O3의 경우, 대부분 “Good” 범주에 속하지만 “Unhealthy for Sensitive Groups” 범주도 꽤 보였고, 심지어 “Unhealthy”와 “Very Unhealthy” 범주도 관측되었다. 
+“Unhealthy for Sensitive Groups”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 Louisiana주의 Jefferson군에서 가장 높은 AQI_mean을 보였다. 다시, “Unhealthy for Sensitive Groups”가 관측된 날짜와 그 곳의 AQI_mean을 출력했다. 그 결과  2000년 9월 4일에 가장 높은 AQI_mean을 보였으며 NO2와 다르게 최근에도 높은 AQI_mean이 관측되었다.  이번엔  “Unhealthy for Sensitive Groups”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 2015년 8월 4일 Alabama 주의 Jefferson에서 가장 높은 AQI_mean이 출력되었다.
+“Unhealthy”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 Maryland주의 Baltimore군에서 가장 높은 AQI_mean을 보였다. 다시, “Unhealthy”가 관측된 날짜와 그 곳의 AQI_mean을 출력했다. 그 결과  2004년 6월 5일에 가장 높은 AQI_mean을 보였으며 NO2와 다르게 높은 AQI_mean이 출력된 연도가 다양했다.  이번엔  “Unhealthy”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 2006년 7월 15일 California주의 Los Angeles에서 가장 높은 AQI_mean이 출력되었다.
+“Very Unhealthy”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 Country of Mexico의 BAJA CALIFORNIA NORTE군에서 가장 높은 AQI_mean을 보였다. 다시, “Very Unhealthy”가 관측된 날짜와 그 곳의 AQI_mean을 출력했다. 그 결과  2013년 6월 29일에 가장 높은 AQI_mean을 보였으며 전반적으로 2000년도에 높은 AQI_mean이 출력되었다.  이번엔  “Very Unhealthy”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 2013년 6월 29일 California 주의 San Bernardino에서 가장 높은 AQI_mean이 출력되었다.
+특이한 점은, 높은 AQI_mean이 관측된 날짜가 주로 6, 7, 8월, 즉 여름이라는 것이다. 계절별 오염물질 농도는 뒤에서 더 자세히 알아보았다.
+
+
+## SO2
+
+```{r}
+#SO2
+Pollution_SO2 %>% filter(!is.na(SO2_AQI) == TRUE) %>% group_by(SO2_AQI_Class) %>% summarise(n=n()) %>% ggplot(aes(SO2_AQI_Class, n)) + geom_bar(aes(fill = SO2_AQI_Class), stat = "identity") + theme_bw() + labs(title = "SO2 AQI BY Class") + theme(axis.text.x = element_text(angle = -6), legend.position = "bottom", plot.title = element_text(face = "bold", size = 12))
+
+```
+
+
+```{r}
+#이상치 관측 위치 확인
+#SO2_AQI_Class = Unhealthy for Sensitive
+Pollution_SO2 %>% filter(SO2_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(State, County) %>% summarise(AQI_mean = mean(SO2_AQI)) %>% arrange(desc(AQI_mean))
+
+#SO2_AQI_Class = Unhealthy
+Pollution_SO2 %>% filter(SO2_AQI_Class == "Unhealthy") %>% group_by(State, County) %>% summarise(AQI_mean = mean(SO2_AQI)) %>% arrange(desc(AQI_mean))
+
+#SO2_AQI_Class = Very Unhealthy
+Pollution_SO2 %>% filter(SO2_AQI_Class == "Very Unhealthy") %>% group_by(State, County) %>% summarise(AQI_mean = mean(SO2_AQI)) %>% arrange(desc(AQI_mean))
+
+
+#이상치 관측 날짜 확인
+#SO2_AQI_Class = Unhealthy for Sensitive
+Pollution_SO2 %>% filter(SO2_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(SO2_AQI)) %>% arrange(desc(AQI_mean))
+
+#SO2_AQI_Class = Unhealthy
+Pollution_SO2 %>% filter(SO2_AQI_Class == "Unhealthy") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(SO2_AQI)) %>% arrange(desc(AQI_mean))
+
+#SO2_AQI_Class = Very Unhealthy
+Pollution_SO2 %>% filter(SO2_AQI_Class == "Very Unhealthy") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(SO2_AQI)) %>% arrange(desc(AQI_mean))
+
+#이상치 관측 위치 + 날짜 확인
+#SO2_AQI_Class = Unhealthy for Sensitive
+Pollution_SO2 %>% filter(SO2_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(SO2_AQI)) %>% arrange(desc(AQI_mean))
+
+#SO2_AQI_Class = Unhealthy
+Pollution_SO2 %>% filter(SO2_AQI_Class == "Unhealthy") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(SO2_AQI)) %>% arrange(desc(AQI_mean))
+
+
+#SO2_AQI_Class = Very Unhealthy
+Pollution_SO2 %>% filter(SO2_AQI_Class == "Very Unhealthy") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(SO2_AQI)) %>% arrange(desc(AQI_mean))
+
+```
+
+SO2의 경우, 대부분 “Good” 범주에 속하지만 다른 범주에서도 모두 관측되었다. 
+“Unhealthy for Sensitive Groups”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 Country of Mexico의 BAJA CALIFORNIA NORTE에서 가장 높은 AQI_mean을 보였다. 다시, “Unhealthy for Sensitive Groups”가 관측된 날짜와 그 곳의 AQI_mean을 출력했다. 그 결과  2007년 4월 21일에 가장 높은 AQI_mean을 보였다.  이번엔  “Unhealthy for Sensitive Groups”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 2005년 8월 15일 Pennsylvania주의 York에서 가장 높은 AQI_mean이 출력되었다.
+“Unhealthy”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 Pennsylvania주의 Lawrence군에서 가장 높은 AQI_mean을 보였다. 다시, “Unhealthy”가 관측된 날짜와 그 곳의 AQI_mean을 출력했다. 그 결과  2001년 6월 27일에 가장 높은 AQI_mean을 보였다.  이번엔  “Unhealthy”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 위치와 날짜 모두 같은 2001년 6월 27일 Pennsylvania주의 Lawrence군에서 가장 높은 AQI_mean이 출력되었다.
+“Very Unhealthy”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 Illinois주의 Saint Clair군에서 가장 높은 AQI_mean을 보였다. 다시, “Very Unhealthy”가 관측된 날짜와 그 곳의 AQI_mean을 출력했다. 그 결과  2007년 4월 21일에 가장 높은 AQI_mean을 보였으며 전반적으로 2000년도에 높은 AQI_mean이 출력되었다.  이번엔  “Very Unhealthy”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 2002년 2월 14일 Illinois주의 Saint Clair군에서 가장 높은 AQI_mean이 출력되었다.
+
+
+## CO
+
+```{r}
+#CO
+Pollution_CO %>% filter(!is.na(CO_AQI) == TRUE) %>% group_by(CO_AQI_Class) %>% summarise(n=n()) %>% ggplot(aes(CO_AQI_Class, n)) + geom_bar(aes(fill = CO_AQI_Class), stat = "identity") + theme_bw() + labs(title = "CO AQI BY Class") + theme(axis.text.x = element_text(angle = -6), legend.position = "bottom", plot.title = element_text(face = "bold", size = 12))
+
+```
+
+```{r}
+#이상치 관측 위치 확인
+#CO_AQI_Class = Unhealthy for Sensitive
+Pollution_CO %>% filter(CO_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(State, County) %>% summarise(AQI_mean = mean(CO_AQI)) %>% arrange(desc(AQI_mean))
+
+#CO_AQI_Class = Unhealthy
+Pollution_CO %>% filter(CO_AQI_Class == "Unhealthy") %>% group_by(State, County) %>% summarise(AQI_mean = mean(CO_AQI)) %>% arrange(desc(AQI_mean))
+
+#CO_AQI_Class = Very Unhealthy
+Pollution_CO %>% filter(CO_AQI_Class == "Very Unhealthy") %>% group_by(State, County) %>% summarise(AQI_mean = mean(CO_AQI)) %>% arrange(desc(AQI_mean))
+
+#이상치 관측 날짜 확인
+#CO_AQI_Class = Unhealthy for Sensitive
+Pollution_CO %>% filter(CO_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(CO_AQI)) %>% arrange(desc(AQI_mean))
+
+#CO_AQI_Class = Unhealthy
+Pollution_CO %>% filter(CO_AQI_Class == "Unhealthy") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(CO_AQI)) %>% arrange(desc(AQI_mean))
+
+#CO_AQI_Class = Very Unhealthy
+Pollution_CO %>% filter(CO_AQI_Class == "Very Unhealthy") %>% group_by(Date_Local) %>% summarise(AQI_mean = mean(CO_AQI)) %>% arrange(desc(AQI_mean))
+
+#이상치 관측 위치 + 날짜 확인
+#CO_AQI_Class = Unhealthy for Sensitive
+Pollution_CO %>% filter(CO_AQI_Class == "Unhealthy for Sensitive Groups") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(CO_AQI)) %>% arrange(desc(AQI_mean))
+
+#CO_AQI_Class = Unhealthy
+Pollution_CO %>% filter(CO_AQI_Class == "Unhealthy") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(CO_AQI)) %>% arrange(desc(AQI_mean))
+
+#CO_AQI_Class = Very Unhealthy
+Pollution_CO %>% filter(CO_AQI_Class == "Very Unhealthy") %>% group_by(State, County, Date_Local) %>% summarise(AQI_mean = mean(CO_AQI)) %>% arrange(desc(AQI_mean))
+
+```
+
+SO2의 경우, 대부분 “Good” 범주에 속하고 다른 범주에서 관측되긴 했지만 CO의 레코드수가 적지 않은 만큼 이는 다른 오염물질에 비해 굉장히 적은 수치로 볼 수 있다.
+“Unhealthy for Sensitive Groups”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 California주의 Imperial군에서 가장 높은 AQI_mean을 보였다. 다시, “Unhealthy for Sensitive Groups”가 관측된 날짜와 그 곳의 AQI_mean을 출력했다. 그 결과  2007년 1월 7일에 가장 높은 AQI_mean을 보였다. 이번엔  “Unhealthy for Sensitive Groups”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 2006년 1월 7일 Country of Mexico의 BAJA CALIFORNIA NORTE에서 가장 높은 AQI_mean이 출력되었다.
+“Unhealthy”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 California주의 Imperial군에서 가장 높은 AQI_mean을 보였다. 다시, “Unhealthy”가 관측된 날짜와 그 곳의 AQI_mean을 출력했다. 그 결과  2000년 11월 26일에 가장 높은 AQI_mean을 보였다. 이번엔  “Unhealthy”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 위치와 날짜 모두 같은 2000년 11월 26일 California주의 Imperial군에서 가장 높은 AQI_mean이 출력되었다.
+“Very Unhealthy”가 관측된 위치와 그곳의 AQI_mean을 출력했다. 그 결과 California주의 Imperial군에서 가장 높은 AQI_mean을 보였다. 다시, “Very Unhealthy”가 관측된 날짜와 그 곳의 AQI_mean을 출력했다. 그 결과  2000년 12월 20일에 가장 높은 AQI_mean을 보였다. 이번엔  “Very Unhealthy”가 관측된 위치, 날짜와 함께 AQI_mean을 출력했다. 그 결과 2000년 12월 20일 California주의 Imperial군에서 가장 높은 AQI_mean이 출력되었다.
+CO의 경우 특히 California주의 Imperial군에서 심각한 수치를 보인 것으로 나타났다.
+AQI에 관한 조사를 하며 발견한 흥미로운 사이트 도 첨부한다. 이 사이트에서 전 세계 AQI를 실시간으로 확인할 수 있으며 미국의 경우 항상 California지역의 AQI가 높게 측정되고 있다는 것을 한 눈에 파악할 수 있다.
+
+## 지역별 AQI 지표 확인
+
+다음으로, AQI의 지역별 차이를 알아보기 위해 산점도를 그렸다. 각 오염물질의 AQI평균 또한 나타내어 지역별 AQI의 비교를 좀더 용이하게 했다.
+
+```{r}
+Pollution_NO2 %>% group_by(State) %>% summarise(AQI_Mean = mean(NO2_AQI)) %>% ggplot(aes(State, AQI_Mean)) + geom_point() + geom_hline(aes(yintercept = mean(AQI_Mean)), color = "red") + theme_bw() + labs(title = "NO2 Mean AQI By State") + theme(plot.title = element_text(face = "bold", size = 12), axis.text.x = element_blank())
+```
+
+### NO2
+
+```{r}
+#평균에 비해 훨씬 높은 AQI_Mean이 35 이상인 경우와, AQI_Mean이 10 이하인 경우만 살펴보면,
+Pollution_NO2 %>% group_by(State) %>% summarise(AQI_Mean = mean(NO2_AQI)) %>% filter(AQI_Mean > 35) %>% arrange(desc(AQI_Mean))
+
+Pollution_NO2 %>% group_by(State) %>% summarise(AQI_Mean = mean(NO2_AQI)) %>% filter(AQI_Mean < 10) %>% arrange(AQI_Mean)
+
+```
+
+
+### O3
+
+```{r}
+#O3
+Pollution_O3 %>% group_by(State) %>% summarise(AQI_Mean = mean(O3_AQI, na.rm = TRUE)) %>% ggplot(aes(State, AQI_Mean)) + geom_point() + geom_hline(aes(yintercept = mean(AQI_Mean, na.rm = TRUE)), color = "red") + theme_bw() + labs(title = "O3 Mean AQI By State") + theme(plot.title = element_text(face = "bold", size = 12), axis.text.x = element_blank())
+
+```
+
+```{r}
+#평균에 비해 훨씬 높은 AQI_Mean이 40 이상인 경우와, AQI_Mean이 30 이하인 경우만 살펴보면,
+Pollution_O3 %>% group_by(State) %>% summarise(AQI_Mean = mean(O3_AQI, na.rm = TRUE)) %>% filter(AQI_Mean > 40) %>% arrange(desc(AQI_Mean))
+
+Pollution_O3 %>% group_by(State) %>% summarise(AQI_Mean = mean(O3_AQI, na.rm = TRUE)) %>% filter(AQI_Mean < 30) %>% arrange(AQI_Mean)
+```
+
+
+### SO2
+
+```{r}
+Pollution_SO2 %>% group_by(State) %>% summarise(AQI_Mean = mean(SO2_AQI, na.rm = TRUE)) %>% ggplot(aes(State, AQI_Mean)) + geom_point() + geom_hline(aes(yintercept = mean(AQI_Mean, na.rm = TRUE)), color = "red") + theme_bw() + labs(title = "SO2 Mean AQI By State") + theme(plot.title = element_text(face = "bold", size = 12), axis.text.x = element_blank())
+```
+
+```{r}
+#평균에 비해 훨씬 높은 AQI_Mean이 15 이상인 경우와, AQI_Mean이 2 이하인 경우만 살펴보면,
+Pollution_SO2 %>% group_by(State) %>% summarise(AQI_Mean = mean(SO2_AQI, na.rm = TRUE)) %>% filter(AQI_Mean > 15) %>% arrange(desc(AQI_Mean))
+
+Pollution_SO2 %>% group_by(State) %>% summarise(AQI_Mean = mean(SO2_AQI, na.rm = TRUE)) %>% filter(AQI_Mean < 2) %>% arrange(AQI_Mean)
+```
+
+
+### CO
+
+```{r}
+#CO
+Pollution_CO %>% group_by(State) %>% summarise(AQI_Mean = mean(CO_AQI, na.rm = TRUE)) %>% ggplot(aes(State, AQI_Mean)) + geom_point() + geom_hline(aes(yintercept = mean(AQI_Mean, na.rm = TRUE)), color = "red") + theme_bw() + labs(title = "CO Mean AQI By State") + theme(plot.title = element_text(face = "bold", size = 12), axis.text.x = element_blank())
+
+```
+
+```{r}
+#평균에 비해 훨씬 높은 AQI_Mean이 10 이상인 경우와, AQI_Mean이 3 이하인 경우만 살펴보면,
+Pollution_CO %>% group_by(State) %>% summarise(AQI_Mean = mean(CO_AQI, na.rm = TRUE)) %>% filter(AQI_Mean > 10) %>% arrange(desc(AQI_Mean))
+
+Pollution_CO %>% group_by(State) %>% summarise(AQI_Mean = mean(CO_AQI, na.rm = TRUE)) %>% filter(AQI_Mean < 3) %>% arrange(AQI_Mean)
+
+#이상치 확인
+Pollution_CO %>% group_by(State) %>% summarise(AQI_Mean = mean(CO_AQI, na.rm = TRUE)) %>% filter(AQI_Mean > 15) %>% arrange(desc(AQI_Mean))
+
+```
+
+AQI의 경우 네 오염물질의 단위를 맞추기 힘든 상황에서 비교하기 매우 좋은 지표이다. 이번 네 그림에서는 y축의 limit을 동일하게 줌으로서, 대강의 점들이 어디에 분포해있는지 알 수 있었다. O3가 전반적으로 굉장히 높은 수치를 차지했다. 그 다음으로 높은 물질은 NO2였고, SO2와 CO는 다행이도 다른 두 오염물질에 비해 심각성이 덜한 편이었다. 하지만 이 둘은 오염물질 자체의 독성이 굉장한 만큼 계속해서 예의주시해야하는 물질이다.
