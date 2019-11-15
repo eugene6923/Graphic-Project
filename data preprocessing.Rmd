@@ -1,0 +1,102 @@
+---
+title: "data preprocessing"
+output: html_document
+---
+
+Kaggle에서 받은 데이터의 경우 분석에 용이하지 않아서 자료 변형을 시도했다. 다음 순서대로 자료 변형해보았다. 이후에 나오는 모든 분석과 데이터셋은 대부분 파트를 토대로 한다.
+
+## 변수 정리
+
+먼저, 변수 이름의 공백을 모두 제거하고 ‘_’로 연결했다. 즉, 코드를 작성 시 공백으로 발생하는 모호함을 줄이고 편리함을 추구하기 위해 변수 이름을 한 단어로 만들었다. 그리고 row_number를 나타내는 첫 번째 변수는 제외했다.
+
+```{r}
+#Main data의 원자료 불러오기
+#install.packages("tidyverse")
+#library(tidyverse)
+Pollution <- read_csv("c:/users/user/downloads/pollution_us_2000_2016.csv", col_names = T)
+```
+
+```{r}
+
+#변수 이름 정리
+Pollution <- Pollution %>% select(-X1) %>% rename(State_Code = 'State Code', County_Code = 'County Code', Site_Num = 'Site Num', Date_Local = 'Date Local', NO2_Units = 'NO2 Units', NO2_Mean = 'NO2 Mean',  NO2_1st_Max_Value = 'NO2 1st Max Value', NO2_1st_Max_Hour = 'NO2 1st Max Hour', NO2_AQI = 'NO2 AQI', O3_Units = 'O3 Units', O3_Mean = 'O3 Mean',  O3_1st_Max_Value = 'O3 1st Max Value', O3_1st_Max_Hour = 'O3 1st Max Hour', O3_AQI = 'O3 AQI', SO2_Units = 'SO2 Units', SO2_Mean = 'SO2 Mean',  SO2_1st_Max_Value = 'SO2 1st Max Value', SO2_1st_Max_Hour = 'SO2 1st Max Hour', SO2_AQI = 'SO2 AQI', CO_Units = 'CO Units', CO_Mean = 'CO Mean',  CO_1st_Max_Value = 'CO 1st Max Value', CO_1st_Max_Hour = 'CO 1st Max Hour', CO_AQI = 'CO AQI')
+#select(), 첫 번째 컬럼은 행 순서로 별다른 의미가 없어서 제외.
+#rename(), 변수명에 공백이 있는 경우 변수 호출 시 문제가 발생하지 않도록 '_'로 변경
+
+```
+
+## 변수 추가 
+
+Date_local 변수는 ‘2010-01-01’와 같은 date형 변수를 나타낸다. 이 변수를 연, 월, 일로 나눈 Year, Month, Day를 추가하여 분석 시 용이하게 사용했다.
+
+```{r}
+Pollution <- Pollution %>% separate(Date_Local, into = c("Year", "Month", "Day"), sep = "-", remove=FALSE, convert=TRUE)
+#seperate(), Date_Local 변수를 나눈 Year, Month, Day 변수 추가. Date_Local는 자료에 그대로 두고 세 변수 모두 int형으로 변경.
+
+```
+
+
+```{r}
+
+#오염물질 별로 자료 나눈 data set
+Pollution_NO2 <- Pollution %>% select(State_Code, County_Code, Site_Num, Address, State, County, City, Date_Local, Year, Month, Day, NO2_Units, NO2_Mean, NO2_1st_Max_Value, NO2_1st_Max_Hour, NO2_AQI) distinct()
+
+Pollution_SO2 <- Pollution %>% select(State_Code, County_Code, Site_Num,  Address, State, County, City, Date_Local, Year, Month, Day, SO2_Units, SO2_Mean, SO2_1st_Max_Value, SO2_1st_Max_Hour, SO2_AQI) distinct()
+
+Pollution_O3 <- Pollution %>% select(State_Code, County_Code, Site_Num,  Address, State, County, City, Date_Local, Year, Month, Day, O3_Units, O3_Mean, O3_1st_Max_Value, O3_1st_Max_Hour, O3_AQI) distinct()
+
+Pollution_CO <- Pollution %>% select(State_Code, County_Code, Site_Num,  Address, State, County, City, Date_Local, Year, Month, Day, CO_Units, CO_Mean, CO_1st_Max_Value, CO_1st_Max_Hour, CO_AQI) distinct()
+
+```
+
+
+또한, 변수 이름과 내용을 확인하며 AQI에 대해 자세히 알아보았다. 공기 품질 지수를 나타내는 AQI(Air quality index)는 저희 조의 데이터셋 출처와 같은 미국 환경 보호국(EPA)에서 정한 기준으로, 이 지수에 따라 여러 범주 로 나눌 수 있다는 사실을 알게되었다. [참조 1] 따라서, 이 지표를 기준으로 나눈 변수 또한 추가했다. 그리고 중복으로 관측된 데이터들이 존재하여 이를 정리했다.
+
+```{r}
+#AQI 범주 넣기
+
+Pollution_NO2 <- Pollution_NO2 %>% mutate(NO2_AQI_Class = NO2_AQI %/% 50, NO2_AQI_Class = stringr::str_replace(NO2_AQI_Class, "0", "Good"), NO2_AQI_Class = stringr::str_replace(NO2_AQI_Class, "1", "Moderate"), NO2_AQI_Class = stringr::str_replace(NO2_AQI_Class, "2", "Unhealthy for Sensitive Groups"), NO2_AQI_Class = stringr::str_replace(NO2_AQI_Class, "3", "Unhealthy"), NO2_AQI_Class = stringr::str_replace(NO2_AQI_Class, "4", "Very Unhealthy"), NO2_AQI_Class = stringr::str_replace(NO2_AQI_Class, "5", "Hazardous"))
+
+Pollution_SO2 <- Pollution_SO2 %>% mutate(SO2_AQI_Class = SO2_AQI %/% 50, SO2_AQI_Class = stringr::str_replace(SO2_AQI_Class, "0", "Good"), SO2_AQI_Class = stringr::str_replace(SO2_AQI_Class, "1", "Moderate"), SO2_AQI_Class = stringr::str_replace(SO2_AQI_Class, "2", "Unhealthy for Sensitive Groups"), SO2_AQI_Class = stringr::str_replace(SO2_AQI_Class, "3", "Unhealthy"), SO2_AQI_Class = stringr::str_replace(SO2_AQI_Class, "4", "Very Unhealthy"), SO2_AQI_Class = stringr::str_replace(SO2_AQI_Class, "5", "Hazardous"))
+
+Pollution_O3 <- Pollution_O3 %>% mutate(O3_AQI_Class = O3_AQI %/% 50, O3_AQI_Class = stringr::str_replace(O3_AQI_Class, "0", "Good"), O3_AQI_Class = stringr::str_replace(O3_AQI_Class, "1", "Moderate"), O3_AQI_Class = stringr::str_replace(O3_AQI_Class, "2", "Unhealthy for Sensitive Groups"), O3_AQI_Class = stringr::str_replace(O3_AQI_Class, "3", "Unhealthy"), O3_AQI_Class = stringr::str_replace(O3_AQI_Class, "4", "Very Unhealthy"), O3_AQI_Class = stringr::str_replace(O3_AQI_Class, "5", "Hazardous"))
+
+Pollution_CO <- Pollution_CO %>% mutate(CO_AQI_Class = CO_AQI %/% 50, CO_AQI_Class = stringr::str_replace(CO_AQI_Class, "0", "Good"), CO_AQI_Class = stringr::str_replace(CO_AQI_Class, "1", "Moderate"), CO_AQI_Class = stringr::str_replace(CO_AQI_Class, "2", "Unhealthy for Sensitive Groups"), CO_AQI_Class = stringr::str_replace(CO_AQI_Class, "3", "Unhealthy"), CO_AQI_Class = stringr::str_replace(CO_AQI_Class, "4", "Very Unhealthy"), CO_AQI_Class = stringr::str_replace(CO_AQI_Class, "5", "Hazardous"))
+
+```
+
+## 이상치 처리
+
+str(), summary() 함수를 통해 기본적인 데이터의 구조와 각 변수의 기본적인 통계량을 알아보았다. 한 번에 확인하기 위해 Pollution 데이터 셋을 이용했다.
+
+```{r}
+summary(Pollution)
+```
+
+
+summary()를 통해 출력한 결과 농도를 나타내는 mean과 max_value값에 0 또는 음수 값이 존재했다. 그래서 이상함을 느끼고 오염물질의 측정 단위인 ppm과 ppb 구하는 방법 을 찾아보았다. 참고로, 측정 단위는 NO2와 SO2는 ppb, O3와 CO는 ppm이었다. [참조2]
+
+공식을 확인해본 결과, 전체 용질 중 특정 물질의 용질이 0 또는 음수가 될 수 없기 때문에 이는 잘못된 관측이라고 판단했다. 그런데, 실제로 잘못된 관측이 일어난 것인지 의문을 품게 되었다. 따라서 지인을 통해 이화여대 환경공학과 학생에게 자문을 구했고, 이는 기계의 이상으로 발생하는 이상치라는 것을 알게 되었다. 0인 값은 특히 그 관측 수가 꽤 많았기 때문에 이를 제거하고 분석을 하는 것이 맞다고 판단하고, 이러한 이상치들을 제거했다.
+
+```{r}
+#mean, max_value 0 또는 음수 제외
+Pollution_NO2 <- Pollution_NO2 %>% filter(NO2_Mean > 0, NO2_1st_Max_Value > 0) 
+
+Pollution_SO2 <- Pollution_SO2 %>% filter(SO2_Mean > 0, SO2_1st_Max_Value > 0)
+
+Pollution_O3 <- Pollution_O3 %>% filter(O3_Mean > 0, O3_1st_Max_Value > 0)
+
+Pollution_CO <- Pollution_CO %>% filter(CO_Mean > 0, CO_1st_Max_Value > 0)
+
+```
+
+제거하고나니 각각의 레코드수가 NO2는 411471, O3는 415980, SO2는 755350, CO는 814443이 되었다. 이는 원래 레코드수에 현저히 줄은 수치이다. 
+
+이제, 분석을 위한 데이터셋이 마련되었다. 데이터셋을 넷으로 나눔으로서 단위의 압박에서 자연스럽게 벗어낫고 필요없는 중복 데이터를 제거함으로서 R상에서 더욱 메모리를 효율적으로 관리할 수 있게 되었다. 더 필요한 자료는 분석 과정에서 추가로 생성했다.
+
+
+
+
+
+
+
