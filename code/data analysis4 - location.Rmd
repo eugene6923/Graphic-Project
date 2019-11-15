@@ -1,0 +1,27 @@
+---
+title: "data analysis4 - location"
+output: html_document
+---
+
+오염물질 별 평균이 높은 주를 확인해보았다. AQI mean과는 조금 다른 결과가 출력되는 것을 알 수 있었다.
+
+```{r}
+#오염물질 별로 평균이 높은 주는 어디일지 살펴보자. 
+Pollution_NO2%>%group_by(State)%>%summarise(mean_NO2=mean(NO2_Mean))%>%arrange(desc(mean_NO2))%>%head(5)
+
+Pollution_SO2%>%group_by(State)%>%summarise(mean_SO2=mean(SO2_Mean))%>%arrange(desc(mean_SO2))%>%head(5)
+
+Pollution_CO%>%group_by(State)%>%summarise(mean_CO=mean(CO_Mean))%>%arrange(desc(mean_CO))%>%head(5)
+
+Pollution_O3%>%group_by(State)%>%summarise(mean_O3=mean(O3_Mean))%>%arrange(desc(mean_O3))%>%head(5)
+
+# NO2의 평균이 가장 높은 5개의 주를 살펴보았다. Country Of Mexico,Colorado,Arizona,New York,Massachusetts 순으로  나왔다.
+# SO2의 평균이 높은 주는 Alaska, New York, District of Columbia, Pennsylvania, Kentucky 순으로 나왔다.
+# CO의 평균이 높은 주는 Country of Mexico, District of Columbia, Arizona, Missouri, California 순으로 나왔다.
+# O3의 평균이 높은 주는  Wyoming, Tennessee,  Utah, Nevada, New Mexico순서로 나타났다. NO2,SO2,CO의 평균이 높은 주는 겹치는 주가 많은데 O3의 평균이 높은 주와는 겹치는 주가 없는 것으로 보인다.NO2,SO2,CO와 O3의 농도가 서로 반대의 경향을 나타냈던 점을 고려해 O3 평균이 가장 낮은 5개의주도 살펴보았다. 
+
+Pollution_O3%>%group_by(State)%>%summarise(mean_O3=mean(O3_Mean))%>%arrange(desc(mean_O3))%>%tail(5)
+
+# Washington, Georgia, Massachusetts, Oregon, Alaska 순으로 나타났는데 Massachusetts는 NO2의 평균이 높은 주 중 하나였다. 또한 Alaska는SO2의 평균이 가장 높은 주이다. 
+```
+
