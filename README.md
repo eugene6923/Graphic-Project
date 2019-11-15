@@ -1,5 +1,6 @@
 # Graphic-Project
-This repository is kinda what I have done for my future job
+This repository is what I worked on in one of my course when I was a Sophomore in my university. 
 
-## Purpose
+## data description
 
+This project deals with   
