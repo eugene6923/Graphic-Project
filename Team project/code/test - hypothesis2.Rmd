@@ -1,0 +1,63 @@
+---
+title: "test - hypothesis2"
+output: html_document
+---
+
+# 산업화가 진행됨에 따라 시간이 갈수록 오염도가 높아질 것이다.
+
+
+이제 두 번째 가설을 살펴보도록 하자. 마찬가지로 네 오염물질로 나누어 분석했다. year로 group을 지은 데이터셋 네개를 새로 만들었다. 그리고 각 해의 평균을 구해 내림차순으로 정렬했다. 참고로 2016년은 5월 31일까지 있다.
+
+
+```{r}
+#NO2
+NO2_Year <- Pollution_NO2 %>% group_by(Year) %>% summarise(mean=mean(NO2_Mean))
+NO2_Year %>% arrange(desc(mean))
+
+#O3
+O3_Year <- Pollution_O3 %>% group_by(Year) %>% summarise(mean=mean(O3_Mean))
+O3_Year %>% arrange(desc(mean))
+
+#SO2
+SO2_Year <- Pollution_SO2 %>% group_by(Year) %>% summarise(mean=mean(SO2_Mean))
+SO2_Year %>% arrange(desc(mean))
+
+#CO
+CO_Year <- Pollution_CO %>% group_by(Year) %>% summarise(mean=mean(CO_Mean))
+CO_Year %>% arrange(desc(mean))
+
+```
+
+이제 선그래프를 이용하여 시간이 지남에 따라 오염물질의 증감을 알아보고자 한다.
+
+```{r}
+#NO2
+NO2_Year %>% ggplot(aes(Year,mean))+geom_line(color="red", size = 1.8) +scale_x_continuous(breaks=c(2000:2016))+ylab("NO2_Year_Mean") + theme_bw() + labs(title = "Line: NO2 Mean By Year") + theme(axis.text.x = element_text(angle = -20), plot.title = element_text(face = "bold", size = 12))
+
+```
+
+NO2는 단조롭게 지속적으로 감소하는 추세를 보였다.
+
+```{r}
+#O3
+O3_Year %>% ggplot(aes(Year,mean))+geom_line(color="yellow", size = 1.8)+scale_x_continuous(breaks=c(2000:2016))+ylab("O3_Year_Mean") + theme_bw() + labs(title = "Line: O3 Mean By Year") + theme(axis.text.x = element_text(angle = -20), plot.title = element_text(face = "bold", size = 12))
+
+```
+
+O3는 4~5년을 주기로 증감을 반복하였고 CO는 지속적으로 감소했다.
+
+```{r}
+#SO2
+SO2_Year %>% ggplot(aes(Year,mean))+geom_line(color="green", size = 1.8) +scale_x_continuous(breaks=c(2000:2016))+ylab("SO2_Year_Mean") + theme_bw() + labs(title = "Line: SO2 Mean By Year") + theme(axis.text.x = element_text(angle = -20), plot.title = element_text(face = "bold", size = 12))
+
+```
+
+SO2는 2002년에서 2005년을 제외한 모든 구간에서 감소했다.
+
+```{r}
+#CO
+CO_Year %>% ggplot(aes(Year,mean))+geom_line(color="purple", size = 1.8) +scale_x_continuous(breaks=c(2000:2016))+ylab("CO_Year_Mean") + theme_bw() + labs(title = "Line: CO Mean By Year") + theme(axis.text.x = element_text(angle = -20), plot.title = element_text(face = "bold", size = 12))
+
+```
+
+결론적으로, O3를 제외한 모든 오염물질에서 평균농도가 감소한다는 것으로 앞선 가설은 기각된다. 다행히도 O3를 제외한 오염물질은 점점 감소하는 편이며 O3의 원인이 되는 물질들에는 특히 계속 주의를 가져야 하겠다.

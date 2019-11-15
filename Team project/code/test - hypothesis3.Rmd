@@ -1,0 +1,119 @@
+---
+title: "test - hypothesis3"
+output: html_document
+---
+
+# 우리나라는 늦가을에서 겨울에 대기오염이 심하다고 한다. 마찬가지로 미국도 가을에서 겨울에 오염도가 높을 것이다.
+
+가설 3을 살펴보기 전에 먼저 각 오염물질 데이터셋에서 Month별로 group을 두고 평균을 구해 내림차순으로 정렬했다.
+
+```{r}
+#NO2
+NO2_Month <- Pollution_NO2 %>% group_by(Month) %>% summarise(mean=mean(NO2_Mean))
+NO2_Month %>% arrange(desc(mean))
+
+#O3
+O3_Month <- Pollution_O3 %>% group_by(Month) %>% summarise(mean=mean(O3_Mean))
+O3_Month %>% arrange(desc(mean))
+
+#SO2
+SO2_Month <- Pollution_SO2 %>% group_by(Month) %>% summarise(mean=mean(SO2_Mean))
+SO2_Month %>% arrange(desc(mean))
+
+#CO
+CO_Month <- Pollution_CO %>% group_by(Month) %>% summarise(mean=mean(CO_Mean))
+CO_Month %>% arrange(desc(mean))
+
+```
+
+
+이제, Month별 각 오염물질 평균을 선그래프로 나타냈다.
+
+```{r}
+#NO2
+NO2_Month %>% ggplot(aes(Month,mean))+geom_line(color="red", size = 1.8)+scale_x_continuous(breaks=c(1:12))+ylab("NO2_Month_Mean") + theme_bw() + labs(title = "Line: NO2 Mean By Month") + theme(plot.title = element_text(face = "bold", size = 12))
+
+#O3
+O3_Month %>% ggplot(aes(Month,mean))+geom_line(color="yellow", size = 1.8)+scale_x_continuous(breaks=c(1:12)) +ylab("O3_Month_Mean") + theme_bw() + labs(title = "Line: O3 Mean By Month") + theme(plot.title = element_text(face = "bold", size = 12))
+
+SO2_Month %>% ggplot(aes(Month,mean))+geom_line(color="green", size = 1.8)+scale_x_continuous(breaks=c(1:12)) +ylab("SO2_Month_Mean") + theme_bw() + labs(title = "Line: SO2 Mean By Month") + theme(plot.title = element_text(face = "bold", size = 12))
+
+#CO
+CO_Month %>% ggplot(aes(Month,mean))+geom_line(color="purple", size = 1.8)+scale_x_continuous(breaks=c(1:12))+ylab("CO_Month_Mean") + theme_bw() + labs(title = "Line: CO Mean By Month") + theme(plot.title = element_text(face = "bold", size = 12))
+
+```
+
+
+계절별 산점도 또한 그려보았다.
+
+
+## NO2
+
+
+```{r}
+#NO2 - 4 Season
+NO2_spring%>% ggplot(aes(Date_Local,NO2_Mean))+geom_point(color="red", alpha = 1/5)+geom_smooth(method="lm",colour="blue")+ylab("NO2_spring_mean") + theme_bw() + labs(title = "Scatter plot: NO2 Mean - Spring") + theme(plot.title = element_text(face = "bold", size = 12))
+
+NO2_summer%>% ggplot(aes(Date_Local,NO2_Mean))+geom_point(color="yellow", alpha = 1/5)+geom_smooth(method="lm",colour="blue")+ylab("NO2_summer_mean") + theme_bw() + labs(title = "Scatter plot: NO2 Mean - Summer") + theme(plot.title = element_text(face = "bold", size = 12))
+
+NO2_fall%>% ggplot(aes(Date_Local,NO2_Mean))+ geom_point(color="green", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("NO2_fall_mean") + theme_bw() + labs(title = "Scatter plot: NO2 Mean - Fall") + theme(plot.title = element_text(face = "bold", size = 12))
+
+NO2_winter%>% ggplot(aes(Date_Local,NO2_Mean))+ geom_point(color="purple", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("NO2_winter_mean") + theme_bw() + labs(title = "Scatter plot: NO2 Mean - Winter") + theme(plot.title = element_text(face = "bold", size = 12))
+```
+
+NO2의 경우 가을, 겨울에 평균 농도가 높다.
+
+
+## O3
+
+```{r}
+#O3 - 4 Season
+O3_spring%>% ggplot(aes(Date_Local,O3_Mean))+ geom_point(color="red", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("O3_spring_mean") + theme_bw() + labs(title = "Scatter plot: O3 Mean - Spring") + theme(plot.title = element_text(face = "bold", size = 12))
+
+O3_summer%>% ggplot(aes(Date_Local,O3_Mean))+ geom_point(color="yellow", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("O3_summer_mean") + theme_bw() + labs(title = "Scatter plot: O3 Mean - Summer") + theme(plot.title = element_text(face = "bold", size = 12))
+
+O3_fall%>% ggplot(aes(Date_Local,O3_Mean))+ geom_point(color="green", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("O3_fall_mean") + theme_bw() + labs(title = "Scatter plot: O3 Mean - Fall") + theme(plot.title = element_text(face = "bold", size = 12))
+
+O3_winter%>% ggplot(aes(Date_Local,O3_Mean))+ geom_point(color="purple", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("O3_winter_mean") + theme_bw() + labs(title = "Scatter plot: O3 Mean - Winter") + theme(plot.title = element_text(face = "bold", size = 12))
+
+```
+
+O3의 경우 겨울에 평균 농도가 가장 낮다.
+
+
+## SO2
+
+```{r}
+#SO2 - 4 Season
+SO2_spring%>% ggplot(aes(Date_Local,SO2_Mean))+ geom_point(color="red", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("SO2_spring_mean") + theme_bw() + labs(title = "Scatter plot: SO2 Mean - Spring") + theme(plot.title = element_text(face = "bold", size = 12))
+
+SO2_summer%>% ggplot(aes(Date_Local,SO2_Mean))+ geom_point(color="yellow", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("SO2_summer_mean") + theme_bw() + labs(title = "Scatter plot: SO2 Mean - Summer") + theme(plot.title = element_text(face = "bold", size = 12)) + theme_bw() + labs(title = "Scatter plot: NO2 Mean - Summer") + theme(plot.title = element_text(face = "bold", size = 12))
+
+SO2_fall%>% ggplot(aes(Date_Local,SO2_Mean))+ geom_point(color="green", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("SO2_fall_mean") + theme_bw() + labs(title = "Scatter plot: SO2 Mean - Fall") + theme(plot.title = element_text(face = "bold", size = 12))
+
+
+SO2_winter%>% ggplot(aes(Date_Local,SO2_Mean))+ geom_point(color="purple", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("SO2_winter_mean") + theme_bw() + labs(title = "Scatter plot: SO2 Mean - Winter") + theme(plot.title = element_text(face = "bold", size = 12))
+```
+
+SO2의 경우 봄, 가을에 평균 농도가 낮고, 여름, 겨울에 평균 농도가 높다.
+
+
+## CO
+
+
+```{r}
+#CO - 4 Season
+CO_spring%>% ggplot(aes(Date_Local,CO_Mean))+ geom_point(color="red", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("CO_spring_mean") + theme_bw() + labs(title = "Scatter plot: CO Mean - Spring") + theme(plot.title = element_text(face = "bold", size = 12))
+
+CO_summer%>% ggplot(aes(Date_Local,CO_Mean))+ geom_point(color="yellow", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("CO_summer_mean") + theme_bw() + labs(title = "Scatter plot: CO Mean - Summer") + theme(plot.title = element_text(face = "bold", size = 12))
+
+CO_fall%>% ggplot(aes(Date_Local,CO_Mean))+ geom_point(color="green", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("CO_fall_mean") + theme_bw() + labs(title = "Scatter plot: CO Mean - Fall") + theme(plot.title = element_text(face = "bold", size = 12))
+
+CO_winter%>% ggplot(aes(Date_Local,CO_Mean))+ geom_point(color="purple", alpha = 1/5)+ geom_smooth(method="lm",colour="blue")+ylab("CO_winter_mean") + theme_bw() + labs(title = "Scatter plot: CO Mean - Winter") + theme(plot.title = element_text(face = "bold", size = 12))
+
+```
+
+CO는 가을, 겨울에 평균 농도가 높다.
+NO2, CO 그리고 O3가 서로 반대인 경향을 보인 이유는 생성 원인 때문이다. NO2가 강한 자외선 을 받아 분해되고 불안전하게 재결합 되는 O3는 자연적으로 여름철에 많았고 미국의 질병관리기관의 조사에 따르면 CO의 가장 큰 발생장소는 77.6%로 거주지 가 되었으며 이는 겨울철 난방을 통해 많은 양의 CO가 발생됨을 알 수 있다.
+
+

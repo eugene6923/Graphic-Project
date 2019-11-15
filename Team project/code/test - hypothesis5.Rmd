@@ -1,0 +1,130 @@
+---
+title: "test - hypothesis5"
+output: html_document
+---
+
+# 공업지역이 많은 주가 대기오염이 심각할 것이다.
+
+캘리포니아 주 안에는 18개의 군과 35개의 도시가 있다. 전체 미국인 중 10퍼센트 이상이 살고 있으며 도시화 수준에서 다른 주 보다 앞서고 있다. 또한 샌프란시스코 만 남쪽으로 실리콘 밸리라고 불리는 첨단 산업 기지가 있어 이 부근에서 오염물질의 농도가 높을 것이라고 생각하여 가설을 선정하였다. 
+
+## NO2
+
+```{r}
+#NO2
+ Pollution_NO2%>%group_by(State)%>%summarise(mean_NO2=mean(NO2_Mean))%>%arrange(desc(mean_NO2))
+
+Pollution_NO2%>%group_by(State)%>%summarise(AQI_NO2=mean(NO2_AQI))%>%arrange(desc(AQI_NO2))
+```
+
+NO2 조사결과에서는 공업지역의 주의 수와 대기오염도가 큰 상관관계를 가졌다.
+
+
+## SO2
+
+
+```{r}
+Pollution_SO2%>%group_by(State)%>%summarise(mean_SO2=mean(SO2_Mean))%>%arrange(desc(mean_SO2))
+
+Pollution_SO2%>%group_by(State)%>%summarise(AQI_SO2=mean(SO2_AQI,na.rm=TRUE))%>%arrange(desc(AQI_SO2))
+```
+
+반면 SO2 조사결과에서는 공업지역의 주의 수와 대기오염도와는 관계를 지을 만큼 관련도가 크지 않았다
+
+
+## CO
+
+
+```{r}
+
+Pollution_CO%>%group_by(State)%>%summarise(mean_CO=mean(CO_Mean))%>%arrange(desc(mean_CO))
+
+Pollution_CO%>%group_by(State)%>%summarise(AQI_CO=mean(CO_AQI,na.rm=TRUE))%>%arrange(desc(AQI_CO))
+```
+
+CO 조사 결과 공업지역의 수와 대기오염도는 거의 비례한다고 볼 수 있다.
+
+
+## O3
+
+
+```{r}
+Pollution_O3%>%group_by(State)%>%summarise(mean_O3=mean(O3_Mean))%>%arrange(desc(mean_O3))
+Pollution_O3%>%group_by(State)%>%summarise(AQI_O3=mean(O3_AQI,na.rm=TRUE))%>%arrange(desc(AQI_O3))
+```
+
+O3 조사결과에서는 공업지역의 주의 수와 대기오염도와는 관계를 지을 만큼 관련도가 크지 않았다.
+
+## 지도로 시각화
+
+### NO2
+```{r}
+states_map <- map_data("state")
+
+#NO2
+Pollution_NO2_AQI <- Pollution_NO2 %>% group_by(State) %>% summarise(NO2_AQI_m = mean(NO2_AQI, na.rm = TRUE))
+
+#state이름 소문자로 바꾸기
+Pollution_NO2_AQI$State <- tolower(Pollution_NO2_AQI$State)
+
+#NO2 지도
+ggChoropleth(data=Pollution_NO2_AQI, aes(fill=NO2_AQI_m, map_id=State), map=states_map) + labs(title = "Severity of contamination - NO2") + theme(plot.title = element_text(face = "bold", size = 12))
+
+```
+
+특히 California주는 눈에 띄게 붉은 색을 띄고 있었다
+
+
+### O3
+
+
+```{r}
+#O3
+Pollution_O3_AQI <- Pollution_O3 %>% group_by(State) %>% summarise(O3_AQI_m = mean(O3_AQI, na.rm = TRUE))
+
+#state이름 소문자로 바꾸기
+Pollution_O3_AQI$State <- tolower(Pollution_O3_AQI$State)
+
+#O3 지도
+ggChoropleth(data=Pollution_O3_AQI, aes(fill=O3_AQI_m, map_id=State), map=states_map) + labs(title = "Severity of contamination - O3") + theme(plot.title = element_text(face = "bold", size = 12))
+
+```
+
+O3의 경우 지금까지 보았던 것 처럼, 전반적으로 오염물질 농도가 확연히 높아보였다.
+
+
+### SO2
+
+
+```{r}
+#SO2
+Pollution_SO2_AQI <- Pollution_SO2 %>% group_by(State) %>% summarise(SO2_AQI_m = mean(SO2_AQI, na.rm = TRUE))
+
+#state이름 소문자로 바꾸기
+Pollution_SO2_AQI$State <- tolower(Pollution_SO2_AQI$State)
+
+#SO2 지도
+ggChoropleth(data=Pollution_SO2_AQI, aes(fill=SO2_AQI_m, map_id=State), map=states_map) + labs(title = "Severity of contamination - SO2") + theme(plot.title = element_text(face = "bold", size = 12))
+
+```
+
+SO2는 특이하게 미국 동부에서 붉은 색을 많이 띄었다.
+
+
+### CO
+
+
+```{r}
+#CO
+Pollution_CO_AQI <- Pollution_CO %>% group_by(State) %>% summarise(CO_AQI_m = mean(CO_AQI, na.rm = TRUE))
+
+#state이름 소문자로 바꾸기
+Pollution_CO_AQI$State <- tolower(Pollution_CO_AQI$State)
+
+#CO 지도
+ggChoropleth(data=Pollution_CO_AQI, aes(fill=CO_AQI_m, map_id=State), map=states_map) + labs(title = "Severity of contamination - CO") + theme(plot.title = element_text(face = "bold", size = 12))
+
+```
+
+CO는 다른 물질에 비해 다행히 붉음이 덜했다.
+
+결과적으로, 미국 공업지역은 대부분 오대호 연안/선벨트지역 - 노스캐롤라이나 주~남부 캘리포니아, 북쪽 지역 이 많다. 결론적으로, 실제 농도가 높게 나온 주 10개 찾아서 대조해본 결과 대다수가 미국 남부 지방의 공업지역이었다.
